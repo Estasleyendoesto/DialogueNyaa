@@ -284,11 +284,15 @@ namespace EEsto.DialogueNyaa
                     {
                         jumpRefs.Add((lineNumber, parts[1]));
 
-                        result.Warnings.Add(new Issue(
-                            lineNumber,
-                            $"':: jump {parts[1]}' no dispara ningún ':: Return'. " +
-                            "Confirma que este no es el sitio donde querías escribir 'Return' " +
-                            "(o que el nodo destino termina llamando a Return en algún punto)."));
+                        // Return es un comando opcional
+                        // Está registrado a nivel de parser por su utilidad
+                        // Debe poder ser lanzado en cualquier parte
+                        
+                        // result.Warnings.Add(new Issue(
+                            // lineNumber,
+                            // $"':: jump {parts[1]}' no dispara ningún ':: Return'. " +
+                            // "Confirma que este no es el sitio donde querías escribir 'Return' " +
+                            // "(o que el nodo destino termina llamando a Return en algún punto)."));
                     }
                     break;
 
