@@ -46,7 +46,7 @@ namespace EEsto.DialogueNyaa
             for (int i = 0; i < args.Length; i++)
                 stringArgs[i] = args[i];
 
-            DialogueEvents.RaiseReturn(stringArgs);
+            DialogueEvents.Return(stringArgs);
         }
     }
 }
