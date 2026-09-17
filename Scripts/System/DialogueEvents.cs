@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EEsto.DialogueNyaa
 {
-    public static class DialogueEvents
+    internal static class DialogueEvents
     {
         public static event Action<TextAsset, string, GameObject> OnPlay;
 
