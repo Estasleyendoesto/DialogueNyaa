@@ -11,8 +11,7 @@ namespace EEsto.DialogueNyaa
         {
             _returnCommand = ExecuteReturn;
 
-            DialogueContext.Commands["return"] =
-                _returnCommand;
+            DialogueContext.Commands["return"] = _returnCommand;
         }
 
         private void OnDestroy()
