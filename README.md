@@ -75,3 +75,17 @@ Voz: Ya no hay vuelta atrás.
 :: PlaySound PuertaCerrandose 
 :: endstory
 ```
+
+## Comandos del Parser
+```nyaa
+:: jump <nodo> – Salta a otro nodo de la conversación.
+:: wait <segundos> – Pausa la historia durante X segundos antes de continuar.
+:: speed <multiplicador> – Altera la velocidad del typewriter (ej: :: speed 2 para rápido, 0.5 para lento).
+:: auto <segundos> – Activa el avance automático con retardo por línea.
+:: autoonce <segundos> – Solo avanza automáticamente la siguiente línea.
+:: if <condicion> / :: elseif / :: else / :: end – Bifurcaciones condicionales.
+:: endstory – Finaliza la historia inmediatamente.
+:: return <valores...> – Envía resultados al juego al terminar (ej: :: return to_work).
+:: event <nombre> [args...] – Dispara un evento de juego genérico (NyaaDialogue.OnEvent).
+:: log <texto...> / :: warn <texto...> – Mensajes a la consola de Unity.
+```
