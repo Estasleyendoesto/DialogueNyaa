@@ -69,7 +69,7 @@ DialogueNyaa/
 ├── Core/             # Motor C# PURO (Agnóstico de Unity, cero MonoBehaviours)
 │   ├── DialogueRunner      # Máquina de estados que recorre instrucciones y timers
 │   ├── DialogueParser      # Analizador sintáctico que compila .nyaa a bytecode
-│   ├── DialogueContext     # Tablas globales de Variables, Condiciones y Comandos
+│   ├── DialogueContext     # Tablas de Condiciones, Predicados y Comandos
 │   └── DialogueValidator   # Validador de consistencia de saltos y nodos
 │
 ├── System/           # Integración con Unity (MonoBehaviours y Fachada)
@@ -160,13 +160,13 @@ NyaaDialogue.Continue();    // Avanza el diálogo manualmente
 NyaaDialogue.Stop();        // Detiene el diálogo principal inmediatamente
 bool activo = NyaaDialogue.IsActive;
 
-// --- Variables y Condiciones ---
-// Variables accesibles en guiones con :: if Oro > 50
-NyaaDialogue.SetVariable("Oro", 100);
-NyaaDialogue.SetVariable("TieneLlave", true);
+// --- Condiciones y Predicados ---
+// Condiciones booleanas evaluadas al vuelo (ej: :: if TieneLlave o :: if !EsDeDia)
+NyaaDialogue.Conditions["TieneLlave"] = () => PlayerInventory.HasKey;
+NyaaDialogue.Conditions["EsDeDia"] = () => DayNightCycle.IsDay;
 
-// Condiciones dinámicas (evaluadas al vuelo en el :: if)
-NyaaDialogue.SetCondition("EsDeDia", () => DayNightCycle.IsDay);
+// Predicados con argumentos (ej: :: if has_item pocion 2)
+NyaaDialogue.Predicates["has_item"] = args => PlayerInventory.Count(args[0]) >= int.Parse(args[1]);
 
 // --- Comandos de Juego y Eventos ---
 // Registrar comando personalizado invocado desde guion con :: dar_recompensa espada
