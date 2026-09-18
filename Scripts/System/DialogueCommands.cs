@@ -31,13 +31,8 @@ namespace EEsto.DialogueNyaa
                 return;
             }
 
-            var stringArgs = new object[args.Length];
-            for (int i = 0; i < args.Length; i++)
-            {
-                stringArgs[i] = args[i];
-            }
-
-            onReturnCallback?.Invoke(stringArgs);
+            object[] parsedArgs = CommandParser.ParseArgs(args);
+            onReturnCallback?.Invoke(parsedArgs);
         }
         
         private static void ExecuteEvent(string[] args, Action<string, string[]> onEvent)

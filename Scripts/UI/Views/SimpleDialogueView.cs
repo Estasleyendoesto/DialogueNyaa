@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace EEsto.DialogueNyaa
@@ -23,6 +24,9 @@ namespace EEsto.DialogueNyaa
         [SerializeField]
         private Button closeButton;
 
+        [SerializeField]
+        private bool allowKeyboardAdvance = true;
+
         [Header("Presenters")]
         [SerializeField]
         private DialogueLinePresenter linePresenter;
@@ -34,32 +38,44 @@ namespace EEsto.DialogueNyaa
 
         private void Awake()
         {
-            if (linePresenter != null)
+            if (linePresenter)
                 linePresenter.OnReadyToContinue += HandleReadyToContinue;
 
-            if (choicePresenter != null)
+            if (choicePresenter)
                 choicePresenter.OnChoiceSelected += HandleChoiceSelected;
 
-            if (nextButton != null)
+            if (nextButton)
                 nextButton.onClick.AddListener(HandleNextClicked);
 
-            if (closeButton != null)
+            if (closeButton)
                 closeButton.onClick.AddListener(HandleCloseClicked);
         }
 
         private void OnDestroy()
         {
-            if (linePresenter != null)
+            if (linePresenter)
                 linePresenter.OnReadyToContinue -= HandleReadyToContinue;
 
-            if (choicePresenter != null)
+            if (choicePresenter)
                 choicePresenter.OnChoiceSelected -= HandleChoiceSelected;
 
-            if (nextButton != null)
+            if (nextButton)
                 nextButton.onClick.RemoveListener(HandleNextClicked);
 
-            if (closeButton != null)
+            if (closeButton)
                 closeButton.onClick.RemoveListener(HandleCloseClicked);
+        }
+
+        private void Update()
+        {
+            if (allowKeyboardAdvance && dialoguePanel && dialoguePanel.activeSelf)
+            {
+                var kb = Keyboard.current;
+                if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame))
+                {
+                    HandleNextClicked();
+                }
+            }
         }
 
         public void Initialize(DialogueSystem dialogueSystem)

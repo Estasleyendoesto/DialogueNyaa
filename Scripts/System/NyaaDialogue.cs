@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +6,7 @@ namespace EEsto.DialogueNyaa
 {
     public static class NyaaDialogue
     {
-        // Control
+        // Control Diálogo Principal
         public static void Play(TextAsset file, string node = "start", GameObject prefab = null)
             => DialogueSystem.Instance?.Play(file, node, prefab);
 
@@ -14,6 +14,16 @@ namespace EEsto.DialogueNyaa
         public static void Pause() => DialogueSystem.Instance?.Pause();
         public static void Resume() => DialogueSystem.Instance?.Resume();
         public static void Continue() => DialogueSystem.Instance?.Continue();
+
+        // Bocadillos Ambientales (Barks)
+        public static void Bubble(TextAsset file, string node = "start", Transform target = null, Vector3 offset = default, GameObject prefab = null)
+            => BubbleSystem.Instance?.Play(file, node, target, offset, prefab);
+
+        public static void StopBubble(Transform target)
+            => BubbleSystem.Instance?.Stop(target);
+
+        public static void StopAllBubbles()
+            => BubbleSystem.Instance?.StopAll();
 
         // Eventos
         public static event Action<string, string> OnStart
