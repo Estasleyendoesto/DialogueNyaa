@@ -8,20 +8,29 @@ namespace EEsto.DialogueNyaa
     {
         public static BubbleSystem Instance { get; private set; }
 
+        [Header("Settings")]
+        [SerializeField] private bool dontDestroyOnLoad = false;
+
         [Header("Prefab")]
         [SerializeField] private GameObject defaultBubblePrefab;
 
         private readonly Dictionary<Transform, GameObject> _activeBubbles = new();
+        private readonly List<GameObject> _untrackedBubbles = new();
 
         private void Awake()
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(this);
+                Destroy(gameObject);
                 return;
             }
 
             Instance = this;
+
+            if (dontDestroyOnLoad)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
         }
 
         private void OnDestroy()
@@ -39,6 +48,10 @@ namespace EEsto.DialogueNyaa
             }
 
             DialogueValidator.Result validation = DialogueValidator.Validate(storyFile.text);
+
+            foreach (var warning in validation.Warnings)
+                Debug.LogWarning($"[DialogueValidator] {storyFile.name}: {warning}");
+
             if (!validation.IsValid)
             {
                 foreach (var error in validation.Errors)
@@ -71,15 +84,22 @@ namespace EEsto.DialogueNyaa
 
             if (target != null)
                 _activeBubbles[target] = instance;
+            else
+                _untrackedBubbles.Add(instance);
 
             var bubbleView = instance.GetComponent<SpeechBubbleView>();
             if (bubbleView != null)
             {
                 bubbleView.PlayStandalone(storyFile, startNode, target, offset, () =>
                 {
-                    if (target != null && _activeBubbles.TryGetValue(target, out GameObject current) && current == instance)
+                    if (target != null)
                     {
-                        _activeBubbles.Remove(target);
+                        if (_activeBubbles.TryGetValue(target, out GameObject current) && current == instance)
+                            _activeBubbles.Remove(target);
+                    }
+                    else
+                    {
+                        _untrackedBubbles.Remove(instance);
                     }
                 });
             }
@@ -107,6 +127,14 @@ namespace EEsto.DialogueNyaa
             }
 
             _activeBubbles.Clear();
+
+            foreach (var bubble in _untrackedBubbles)
+            {
+                if (bubble != null)
+                    Destroy(bubble);
+            }
+
+            _untrackedBubbles.Clear();
         }
     }
 }

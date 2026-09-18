@@ -24,6 +24,7 @@ namespace EEsto.DialogueNyaa
         [SerializeField] private DialogueChoicePresenter choicePresenter;
 
         private DialogueSystem _system;
+        private bool _notifyReady;
 
         private void Awake()
         {
@@ -67,6 +68,15 @@ namespace EEsto.DialogueNyaa
             }
         }
 
+        private void LateUpdate()
+        {
+            if (!_notifyReady)
+                return;
+
+            _notifyReady = false;
+            _system?.ViewReady();
+        }
+
         public void Initialize(DialogueSystem dialogueSystem)
         {
             _system = dialogueSystem;
@@ -92,18 +102,29 @@ namespace EEsto.DialogueNyaa
                 bodyText.text = LocalizationManager.Get(line.LocKey, line.Text);
             }
 
-            _system?.ViewReady();
+            // Sin typewriter, avisamos en el siguiente LateUpdate para no
+            // reentrar sincrónicamente en DialogueRunner/DialogueSystem
+            // mientras todavía se está procesando ShowLine().
+            _notifyReady = true;
         }
 
         public void ShowChoices(List<ChoiceOption> choices)
         {
-            choicePresenter?.Show(choices);
+            if (choicePresenter != null)
+            {
+                choicePresenter.Show(choices);
+            }
+            else
+            {
+                _system?.Stop();
+            }
         }
 
         public void ChangeSpeed(float multiplier) { }
 
         public void Close()
         {
+            _notifyReady = false;
             choicePresenter?.Clear();
 
             if (documentPanel != null)
