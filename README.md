@@ -204,7 +204,7 @@ node tienda:
     Tendero: ¿Qué deseas comprar hoy?
     
     - "Comprar poción (50 monedas)"
-        :: if Oro >= 50
+        :: if tiene_oro_pocion
             Tendero: ¡Aquí tienes!
             :: return pocion
         :: else
@@ -226,7 +226,7 @@ node tienda:
 | **`speed`** | `:: speed <multiplicador>` | Modifica la velocidad del typewriter (`1.0` es normal, `2.0` rápido). |
 | **`auto`** | `:: auto <segundos>` | Activa auto-play continuo con retardo de X segundos por línea (`:: auto 0` para desactivar). |
 | **`autoonce`** | `:: autoonce <segundos>` | Solo avanza automáticamente la siguiente línea. |
-| **`if` / `elseif` / `else` / `end`** | `:: if <condición>` | Bifurcaciones lógicas. Soporta operadores y negación (`!TieneLlave`). |
+| **`if` / `elseif` / `else` / `end`** | `:: if <condición>` | Bifurcaciones lógicas. Evalúa condiciones simples (soporta `!TieneLlave`) o predicados con argumentos (`has_item pocion 2`). |
 | **`endstory`** | `:: endstory` | Finaliza la historia inmediatamente. |
 | **`return`** | `:: return <valores...>` | Devuelve valores al callback `onReturn` de C# y finaliza. |
 | **`event`** | `:: event <nombre> [args...]` | Dispara el evento `NyaaDialogue.OnEvent` en Unity. |
