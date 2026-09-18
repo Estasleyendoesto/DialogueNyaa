@@ -330,6 +330,11 @@ namespace EEsto.DialogueNyaa
             if (_state != DialogueRunnerState.Stopped)
                 _isPaused = true;
         }
+        
+        public void Resume()
+        {
+            _isPaused = false;
+        }
 
         public void Stop()
         {

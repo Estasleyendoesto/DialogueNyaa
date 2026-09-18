@@ -3,49 +3,67 @@ using UnityEngine;
 
 namespace EEsto.DialogueNyaa
 {
-    public sealed class DialogueCommands : MonoBehaviour
+    internal static class DialogueCommands
     {
-        private Action<string[]> _returnCommand;
-
-        private void Awake()
+        public static void RegisterDefaults(
+            Action<object[]> onReturnCallback, 
+            Action<string, string[]> onEventCallback)
         {
-            _returnCommand = ExecuteReturn;
-
-            DialogueContext.Commands["return"] = _returnCommand;
+            DialogueContext.Commands["return"] = args => ExecuteReturn(args, onReturnCallback);
+            DialogueContext.Commands["event"]  = args => ExecuteEvent(args, onEventCallback);
+            DialogueContext.Commands["log"]    = ExecuteLog;
+            DialogueContext.Commands["warn"]   = ExecuteWarn;
         }
 
-        private void OnDestroy()
+        public static void UnregisterDefaults()
         {
-            if (DialogueContext.Commands.TryGetValue(
-                    "return",
-                    out Action<string[]> registeredCommand) &&
-                registeredCommand == _returnCommand)
-            {
-                DialogueContext.Commands.Remove("return");
-            }
+            DialogueContext.Commands.Remove("return");
+            DialogueContext.Commands.Remove("event");
+            DialogueContext.Commands.Remove("log");
+            DialogueContext.Commands.Remove("warn");
         }
 
-        private static void ExecuteReturn(string[] args)
+        private static void ExecuteReturn(string[] args, Action<object[]> onReturnCallback)
         {
             if (args == null || args.Length == 0)
             {
-                Debug.LogWarning(
-                    "[Dialogue] Return sin argumentos.");
-
+                Debug.LogWarning("[Dialogue] Return sin argumentos.");
                 return;
             }
 
-            // Los valores de ':: Return' son identificadores (nombres de
-            // elección), no datos tipados: se envían siempre como string.
-            // Si se usara CommandParser.ParseArgs aquí, un valor como
-            // "true"/"1" se convertiría en silencio a bool/int y rompería
-            // cualquier receptor que compruebe "args[0] is not string".
             var stringArgs = new object[args.Length];
-
             for (int i = 0; i < args.Length; i++)
+            {
                 stringArgs[i] = args[i];
+            }
 
-            DialogueEvents.Return(stringArgs);
+            onReturnCallback?.Invoke(stringArgs);
+        }
+        
+        private static void ExecuteEvent(string[] args, Action<string, string[]> onEvent)
+        {
+            if (args == null || args.Length == 0)
+            {
+                Debug.LogWarning("[DialogueNyaa] Comando 'event' requiere al menos un nombre de evento.");
+                return;
+            }
+
+            string eventName = args[0];
+            string[] eventArgs = args.Length > 1 ? args[1..] : Array.Empty<string>();
+
+            onEvent?.Invoke(eventName, eventArgs);
+        }
+        
+        private static void ExecuteLog(string[] args)
+        {
+            if (args == null || args.Length == 0) return;
+            Debug.Log($"[DialogueNyaa] Log: {string.Join(" ", args)}");
+        }
+        
+        private static void ExecuteWarn(string[] args)
+        {
+            if (args == null || args.Length == 0) return;
+            Debug.LogWarning($"[DialogueNyaa] Warn: {string.Join(" ", args)}");
         }
     }
 }
