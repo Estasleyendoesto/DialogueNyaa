@@ -7,13 +7,23 @@ namespace EEsto.DialogueNyaa
     public static class NyaaDialogue
     {
         // Control Diálogo Principal
-        public static void Play(TextAsset file, string node = "start", GameObject prefab = null)
-            => DialogueSystem.Instance?.Play(file, node, prefab);
+        public static void Play(TextAsset file, string node = "start", GameObject prefab = null, Action<object[]> onReturn = null)
+            => DialogueSystem.Instance?.Play(file, node, prefab, onReturn);
+
+        public static void Play(TextAsset file, string node, Action<object[]> onReturn, GameObject prefab = null)
+            => DialogueSystem.Instance?.Play(file, node, prefab, onReturn);
+
+        public static void Play(TextAsset file, Action<object[]> onReturn)
+            => DialogueSystem.Instance?.Play(file, "start", null, onReturn);
 
         public static void Stop() => DialogueSystem.Instance?.Stop();
         public static void Pause() => DialogueSystem.Instance?.Pause();
         public static void Resume() => DialogueSystem.Instance?.Resume();
         public static void Continue() => DialogueSystem.Instance?.Continue();
+
+        public static bool IsRunning => DialogueSystem.Instance != null && DialogueSystem.Instance.IsRunning;
+        public static bool IsActive => IsRunning;
+        public static bool IsPaused => DialogueSystem.Instance != null && DialogueSystem.Instance.IsPaused;
 
         // Bocadillos Ambientales (Barks)
         public static void Bubble(TextAsset file, string node = "start", Transform target = null, Vector3 offset = default, GameObject prefab = null)

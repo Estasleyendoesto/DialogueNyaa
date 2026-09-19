@@ -31,6 +31,7 @@ namespace EEsto.DialogueNyaa
         private IDialogueView _view;
         private GameObject _viewInstance;
         private GameObject _currentPrefab;
+        private Action<object[]> _currentReturnCallback;
 
         // ================= Consultas de Estado =================
         public DialogueRunnerState State => _runner.State;
@@ -59,9 +60,13 @@ namespace EEsto.DialogueNyaa
             }
 
             HookRunnerEvents();
-            DialogueCommands.RegisterDefaults(args 
-                => OnReturn?.Invoke(args), (eventName, eventArgs) 
-                => OnCustomEvent?.Invoke(eventName, eventArgs)
+            DialogueCommands.RegisterDefaults(
+                args =>
+                {
+                    _currentReturnCallback?.Invoke(args);
+                    OnReturn?.Invoke(args);
+                },
+                (eventName, eventArgs) => OnCustomEvent?.Invoke(eventName, eventArgs)
             );
         }
 
@@ -71,6 +76,7 @@ namespace EEsto.DialogueNyaa
 
             UnhookRunnerEvents();
             DialogueCommands.UnregisterDefaults();
+            _currentReturnCallback = null;
             Instance = null;
         }
 
@@ -81,7 +87,7 @@ namespace EEsto.DialogueNyaa
 
         // ================= Control de Reproducción =================
 
-        public void Play(TextAsset storyFile, string startNode = "start", GameObject dialoguePrefab = null)
+        public void Play(TextAsset storyFile, string startNode = "start", GameObject dialoguePrefab = null, Action<object[]> onReturn = null)
         {
             if (storyFile == null)
             {
@@ -110,14 +116,23 @@ namespace EEsto.DialogueNyaa
             if (!InitializeView(prefab))
                 return;
 
+            _currentReturnCallback = onReturn;
+
             DialogueProgram program = DialogueParser.Parse(storyFile.name, storyFile.text);
             _runner.Play(program, startNode);
 
             OnDialogueStarted?.Invoke(storyFile.name, startNode);
         }
 
+        public void Play(TextAsset storyFile, string startNode, Action<object[]> onReturn, GameObject dialoguePrefab = null)
+            => Play(storyFile, startNode, dialoguePrefab, onReturn);
+
+        public void Play(TextAsset storyFile, Action<object[]> onReturn)
+            => Play(storyFile, "start", null, onReturn);
+
         public void Stop()
         {
+            _currentReturnCallback = null;
             if (!IsRunning) return;
 
             _runner.Stop();
@@ -195,6 +210,7 @@ namespace EEsto.DialogueNyaa
 
         private void HandleEnd()
         {
+            _currentReturnCallback = null;
             _view?.Close();
             OnDialogueEnded?.Invoke();
         }
